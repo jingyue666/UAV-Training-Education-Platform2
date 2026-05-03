@@ -1,6 +1,10 @@
 import streamlit as st
 from modules import auth, training, marketplace, admin, special_groups, points
 import session_state
+import database  # 👈 我加了
+
+# 启动时自动建库建表 🔥 关键修复
+database.init_database()
 
 def main():
     st.set_page_config(
@@ -14,8 +18,6 @@ def main():
 
     # 侧边栏
     with st.sidebar:
-        # 有 logo 就放，没有注释也行
-        # st.image("logo.png", width=150)
         st.title("导航菜单")
 
         if not st.session_state.authenticated:
