@@ -3,11 +3,8 @@ import sqlite3
 import os
 from datetime import datetime
 
-# 适配云端数据库路径
+# 数据库路径 👈 统一正确路径
 DB_PATH = os.path.join("/tmp", "drone_platform.db")
-
-# 临时禁用人脸识别，避免部署报错
-# import face_recognition_api
 
 def show_login():
     """登录/注册界面"""
