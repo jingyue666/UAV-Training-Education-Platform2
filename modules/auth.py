@@ -34,7 +34,7 @@ def register_user(username, password, real_name, phone, role):
             VALUES (?, ?, ?, ?, ?, ?, 0, 0)
         ''', (username, password, real_name, phone, role, "初级"))
         conn.commit()
-    except:
+    except Exception as e:
         st.error("用户名已存在")
     conn.close()
 
@@ -52,7 +52,14 @@ def authenticate(username, password):
         st.session_state.authenticated = True
         st.session_state.user_id = user[0]
         st.session_state.username = user[1]
-        st.session_state.role = user[2]
+        
+        # 自动匹配菜单角色（解决菜单不显示问题）
+        db_role = user[2]
+        if db_role == "个人学员":
+            st.session_state.role = "学员"
+        else:
+            st.session_state.role = db_role
+
         st.session_state.level = user[3]
         st.rerun()
     else:
