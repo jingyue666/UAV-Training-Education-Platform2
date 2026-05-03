@@ -3,11 +3,9 @@ import sqlite3
 import os
 from datetime import datetime
 
-# 数据库路径 👈 统一正确路径
 DB_PATH = os.path.join("/tmp", "drone_platform.db")
 
 def show_login():
-    """登录/注册界面"""
     tab1, tab2 = st.tabs(["登录", "注册"])
     
     with tab1:
@@ -18,20 +16,29 @@ def show_login():
     
     with tab2:
         reg_type = st.radio("注册类型", ["个人学员", "接单员", "企业用户"])
-        if reg_type == "接单员":
-            show_pilot_registration()
+        username = st.text_input("用户名", key="reg_user")
+        password = st.text_input("密码", type="password", key="reg_pwd")
+        real_name = st.text_input("真实姓名")
+        phone = st.text_input("手机号")
 
-def show_pilot_registration():
-    st.text_input("真实姓名")
-    st.text_input("手机号")
-    st.text_input("设置用户名")
-    st.text_input("设置密码", type="password")
-    st.selectbox("技能等级", ["初级","中级","高级"])
-    if st.button("立即注册"):
-        st.success("注册提交成功，等待管理员审核")
+        if st.button("完成注册"):
+            register_user(username, password, real_name, phone, reg_type)
+            st.success("注册成功！请返回登录")
+
+def register_user(username, password, real_name, phone, role):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            INSERT INTO users (username, password, real_name, phone, role, level, points, balance)
+            VALUES (?, ?, ?, ?, ?, ?, 0, 0)
+        ''', (username, password, real_name, phone, role, "初级"))
+        conn.commit()
+    except:
+        st.error("用户名已存在")
+    conn.close()
 
 def authenticate(username, password):
-    """验证用户凭证"""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
@@ -47,7 +54,6 @@ def authenticate(username, password):
         st.session_state.username = user[1]
         st.session_state.role = user[2]
         st.session_state.level = user[3]
-        st.success("登录成功！")
         st.rerun()
     else:
         st.error("用户名或密码错误")
